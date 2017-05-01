@@ -90,15 +90,12 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
 
             });
             console.log(pj.render(netfilterCommands));
-if(program.run){
-console.log(c.yellow.bold('Running netfilter commands!'));
-_.each(netfilterCommands, function(nfCmd){
-            child_process.execSync(nfCmd);
+            if (program.run) {
+                console.log(c.yellow.bold('Running netfilter commands!'));
+                _.each(netfilterCommands, child_process.execSync);
+                console.log(c.green.bold('Completed netfilter commands...'));
+            }
 
-});
-console.log(c.green.bold('Completed netfilter commands...'));
-}
-		
         }
         if (program.test) {
             console.log('Testing container networking!!');
