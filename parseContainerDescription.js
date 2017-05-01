@@ -6,10 +6,11 @@ module.exports = function(veid, _cb) {
     try {
         var descriptionJson = JSON.parse(child_process.execSync(getDescCmd).toString());
     } catch (e) {
-        var descriptionJson = {}
+            var descriptionJson = {}
     };
-    descriptionJson.redirections = descriptionJson.redirections || [];
+    descriptionJson.inboundPorts = descriptionJson.inboundPorts || [];
     descriptionJson.nats = descriptionJson.nats || [];
-_cb(null, descriptionJson);
+    var ips = JSON.parse(child_process.execSync('vzlist -jHo ip ' + veid).toString())[0].ip;
+    _cb(null, descriptionJson, ips);
 
 };

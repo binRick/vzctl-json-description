@@ -19,6 +19,12 @@
   "dependencies": {
     "async": "^2.4.0",
     "chalk": "^1.1.3",
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "ip-address": "^5.8.8",
+    "prettyjson": "^1.2.1",
+    "trim": "0.0.1",
+    "underscore": "^1.8.3",
+    "validate-ip": "^1.0.1",
+    "validator": "^7.0.0"
   }
 }
