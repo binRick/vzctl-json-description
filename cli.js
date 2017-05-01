@@ -51,11 +51,13 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
                 var commas = program.addPort.split(',');
                 var semicolons = program.addPort.split(':');
                 console.log('justport = ', justPort, 'commas length=', commas.length);
-                if (justPort > 0 && justPort < 65531 && commas.length == 1 && semicolons.length == 1) {
-                    console.log('Configuring inbound port based on container port', justPort, 'only.');
+                var defaultHostnodeIP = trim(child_process.execSync('ip route| grep ^default|cut -d\' \' -f5| tail -n 1 | xargs -I % ifconfig % | grep \'inet addr:\'| tr -s \' \'| cut -d\':\' -f2| cut -d\' \' -f1').toString());
+                if (justPort > 1024 && justPort < 65531 && commas.length == 1 && semicolons.length == 1) {
+                    var natHostAddress = defaultHostnodeIP;
+                    console.log(c.yellow.bold('Configuring inbound port based on container port', c.white.bgBlack.bold(justPort), 'only. Packets to address', c.white.bgBlack.bold(natHostAddress), ' and port', c.white.bgBlack.bold(justPort), 'on host node will be routed to container at the same port..'));
                     _.each(containerIPs, function(containerIP) {
                         var inboundPort = {
-                            destHost: '66.35.78.2',
+                            destHost: natHostAddress,
                             destPort: justPort,
                             toHost: containerIP,
                             toPort: justPort,
