@@ -2,14 +2,14 @@
 
 var program = require('commander'),
     c = require('chalk'),
+    config = require('./config'),
     trim = require('trim'),
     child_process = require('child_process'),
     _ = require('underscore'),
     pj = require('prettyjson'),
-    localIPs = require('./localIPs')
+    localIPs = require('./localIPs'),
 parser = require('./parseContainerDescription'),
     validateip = require('validate-ip');
-
 
 program
     .version('0.0.1')
@@ -75,11 +75,9 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
             console.log(pj.render(containerNetworking, {}));
         }
         if (program.save) {
-            console.log('Writing description of', JSON.stringify(containerNetworking).length, 'bytes.');
+            console.log('Writing description parameter to string of', JSON.stringify(containerNetworking).length, 'bytes.');
             var cmd = 'vzctl set ' + veid + ' --description=\'' + JSON.stringify(containerNetworking) + '\' --save';
-            console.log(c.yellow('Running command:\n\t'), c.yellow(cmd));
             child_process.execSync(cmd);
-            console.log(c.green('\tComplete!'));
         }
         if (program.apply) {
             console.log('Generating Netfiler Commands...');
@@ -89,7 +87,6 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
             });
             _.each(containerNetworking.inboundPorts, function(inboundPort) {
                 netfilterCommands.push('iptables -t nat -A PREROUTING -p tcp -d ' + inboundPort.destHost + ' --dport ' + inboundPort.destPort + ' -j DNAT --to-destination ' + inboundPort.toHost + ':' + inboundPort.toPort + '');
-
             });
             console.log(pj.render(netfilterCommands));
             if (program.run) {
@@ -97,11 +94,12 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
                 _.each(netfilterCommands, child_process.execSync);
                 console.log(c.green.bold('Completed netfilter commands...'));
             }
-
         }
         if (program.test) {
             console.log('Testing container networking!!');
-//while [ 1 ]; do vzctl exec beef timeout 5 tcpdump -nv -i venet0 port 4435; done
+            console.log('Tcpdumping for packet in container...');
+            //while [ 1 ]; do vzctl exec beef timeout 5 tcpdump -nv -i venet0 port 4435; done
+            console.log('Sending packet from remote test server...');
         }
     });
 });
