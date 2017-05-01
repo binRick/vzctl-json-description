@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/binRick/vzctl-json-description/issues"
   },
-  "homepage": "https://github.com/binRick/vzctl-json-description#readme"
+  "homepage": "https://github.com/binRick/vzctl-json-description#readme",
+  "dependencies": {
+    "async": "^2.4.0",
+    "chalk": "^1.1.3"
+  }
 }
