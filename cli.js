@@ -101,6 +101,7 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
         }
         if (program.test) {
             console.log('Testing container networking!!');
+//while [ 1 ]; do vzctl exec beef timeout 5 tcpdump -nv -i venet0 port 4435; done
         }
     });
 });
