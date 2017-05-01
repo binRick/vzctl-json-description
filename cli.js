@@ -19,6 +19,8 @@ program
     .option('-p --add-port [addPort]', 'configure container port redirection')
     .option('-s --save', 'save networking configuration')
     .option('-a --apply', 'apply container networking to host system netfilter')
+    .option('-r --run', 'run netfilter commands when applying')
+    .option('-t --test', 'test container networking')
     .parse(process.argv);
 
 var veid = parseInt(program.args[0]);
@@ -61,7 +63,6 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
                         };
                         containerNetworking.inboundPorts.push(inboundPort);
                     });
-
                 } else {
                     console.log('Configuring complex inbound port....');
                 }
@@ -78,8 +79,29 @@ localIPs.getNetworkIPs(function(err, hostNodeIPs) {
             child_process.execSync(cmd);
             console.log(c.green('\tComplete!'));
         }
-        if (program.save) {
-            console.log('Invoking Netfiler!');
+        if (program.apply) {
+            console.log('Generating Netfiler Commands...');
+            var netfilterCommands = [];
+            _.each(containerNetworking.nats, function(nat) {
+                netfilterCommands.push('iptables -t nat -A POSTROUTING -j SNAT -s ' + nat.source + ' --to ' + nat.to);
+            });
+            _.each(containerNetworking.inboundPorts, function(inboundPort) {
+                netfilterCommands.push('iptables -t nat -A PREROUTING -p tcp -d ' + inboundPort.destHost + ' --dport ' + inboundPort.destPort + ' -j DNAT --to-destination ' + inboundPort.toHost + ':' + inboundPort.toPort + '');
+
+            });
+            console.log(pj.render(netfilterCommands));
+if(program.run){
+console.log(c.yellow.bold('Running netfilter commands!'));
+_.each(netfilterCommands, function(nfCmd){
+            child_process.execSync(nfCmd);
+
+});
+console.log(c.green.bold('Completed netfilter commands...'));
+}
+		
+        }
+        if (program.test) {
+            console.log('Testing container networking!!');
         }
     });
 });
